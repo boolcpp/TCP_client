@@ -3,17 +3,22 @@
 #pragma comment(lib,"ws2_32.lib")
 
 #include <string>
-
-
+//for video
 #include <opencv2/opencv.hpp>
+
 
 int main()
 {
-	cv::Mat img = cv::imread("123.jpg");
+	std::cout << "start" << std::endl;
+	cv::Mat img0 = cv::imread("1.jpg");
+	//mat to char
+	unsigned char* ptrbuf = img0.data;
+	//char* to mat
+	cv::Mat img1 = cv::Mat(img0.rows, img0.cols, CV_8UC3);
+	img1.data = ptrbuf;
 	cv::namedWindow("image", CV_WINDOW_NORMAL);
-	cv::imshow("image", img);
+	cv::imshow("image", img1);
 	cv::waitKey(0);
-
 
 
 
