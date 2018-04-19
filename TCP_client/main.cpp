@@ -4,8 +4,19 @@
 
 #include <string>
 
+
+#include <opencv2/opencv.hpp>
+
 int main()
 {
+	cv::Mat img = cv::imread("123.jpg");
+	cv::namedWindow("image", CV_WINDOW_NORMAL);
+	cv::imshow("image", img);
+	cv::waitKey(0);
+
+
+
+
 	std::string ipAddress = "127.0.0.1";
 	int port = 54000;
 	//init winsocket
