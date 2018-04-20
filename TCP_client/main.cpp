@@ -12,14 +12,43 @@ int main()
 	std::cout << "start" << std::endl;
 	cv::Mat img0 = cv::imread("1.jpg");
 	//mat to char
-	unsigned char* ptrbuf = img0.data;
-	//char* to mat
-	cv::Mat img1 = cv::Mat(img0.rows, img0.cols, CV_8UC3);
-	img1.data = ptrbuf;
-	cv::namedWindow("image", CV_WINDOW_NORMAL);
-	cv::imshow("image", img1);
-	cv::waitKey(0);
+	unsigned char* ptrbuf = new unsigned char[img0.cols * img0.rows * 3 + 8];
+	
+	
+	char rowbuf[4];// = new unsigned char[4];
+	ZeroMemory(rowbuf, 4);
+	sprintf_s(rowbuf, "%d", img0.rows);
+	
+	//sizeof(rowbuf);
 
+	char colbuf[4];// = new unsigned char[4];
+	ZeroMemory(colbuf, 4);
+	sprintf_s(colbuf, "%d", img0.cols);
+
+
+	for (size_t i = 0; i < 5; i++)
+	{
+		ptrbuf[i] = rowbuf[i];
+		ptrbuf[i + 5] = colbuf[i];
+	}
+
+
+	for (size_t i = 9; i <= img0.cols * img0.rows * 3 + 8; i++)
+	{
+		ptrbuf[i] = img0.data[i - 9];
+	}
+		
+	//cv::Mat img1 = cv::Mat(img0.rows, img0.cols, CV_8UC3);
+
+	//for (size_t i = 0; i <= img0.cols * img0.rows * 3; i++)
+	//{
+	//	img1.data[i] = ptrbuf[i + 9];
+	//}
+	////img1.data = ptrbuf;
+	//cv::namedWindow("image", CV_WINDOW_NORMAL);
+	//cv::imshow("image", img1);
+	//cv::waitKey(0);
+	
 
 
 	std::string ipAddress = "127.0.0.1";
