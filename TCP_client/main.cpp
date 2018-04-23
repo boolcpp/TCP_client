@@ -12,39 +12,42 @@ int main()
 	std::cout << "start" << std::endl;
 	cv::Mat img0 = cv::imread("12.jpg");
 	//mat to char
-	char* ptrbuf = new char[img0.cols * img0.rows * 3 + 26];
+	char* ptrbuf = new char[img0.cols * img0.rows * 3 + 24];
 
-
-	char rowbuf[5];// = new unsigned char[4];
-	ZeroMemory(rowbuf, 5);
-	sprintf_s(rowbuf, "%d", img0.rows);
-
-	//sizeof(rowbuf);
-
-	char colbuf[5];// = new unsigned char[4];
-	ZeroMemory(colbuf, 5);
-	sprintf_s(colbuf, "%d", img0.cols);
-
-	//add to sending bufer count of rows and cols
-	for (size_t i = 0; i < 6; i++)
+	union MyUnion
 	{
-		ptrbuf[i] = rowbuf[i];
-		ptrbuf[i + 6] = colbuf[i];
-	}
+		unsigned char r[4];
+		int x;
+	} rowC, colC;
+	union 
+	{
+		unsigned char l[16];
+		int l1;
+	}Length;
 
-	char lengthbuf[16];
-	ZeroMemory(lengthbuf, 16);
-	sprintf_s(lengthbuf, "%d", img0.cols * img0.rows * 3 + 26);
-	//add to sending bufer length of bytes of image.data
-	for (size_t i = 0; i < 17; i++)
+
+	rowC.x = img0.rows;
+	colC.x = img0.cols;
+	int t = img0.total();
+	//
+
+	//int p1 = 0;
+	//int p2 = 0;
+
+	//p1 = *(int *)rowC.r;
+	//p2 = *(int *)colC.r;
+
+	struct MyStruct
 	{
-		ptrbuf[i + 17] = lengthbuf[i];
-	}
-	//add to sending buder image.data
-	for (size_t i = 27; i <= img0.cols * img0.rows * 3 + 26; i++)
-	{
-		ptrbuf[i] = img0.data[i - 27];
-	}
+		uchar* row;
+		uchar* col;
+		uchar* r;
+	} st;
+	st.row = rowC.r;
+	st.col = colC.r;
+	st.r = img0.data;
+
+	
 	//testing: start
 	//cv::Mat img1 = cv::Mat(img0.rows, img0.cols, CV_8UC3);
 
