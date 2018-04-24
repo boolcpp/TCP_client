@@ -6,54 +6,60 @@
 //for video
 #include <opencv2/opencv.hpp>
 
-
+//#include <stdlib.h>
 int main()
 {
 	std::cout << "start" << std::endl;
-	cv::Mat img0 = cv::imread("1.jpg");
+	cv::Mat img0 = cv::imread("12.jpg");
 	//mat to char
-	unsigned char* ptrbuf = new unsigned char[img0.cols * img0.rows * 3 + 24];
-	
+	char* ptrbuf = new char[img0.cols * img0.rows * 3 + 24];
+
+	union MyUnion
+	{
+		unsigned char r[4];
+		int x;
+	} rowC, colC;
+	union 
+	{
+		unsigned char l[16];
+		int l1;
+	}Length;
+
+
+	rowC.x = img0.rows;
+	colC.x = img0.cols;
+	int t = img0.total();
+	//
+
+	//int p1 = 0;
+	//int p2 = 0;
+
+	//p1 = *(int *)rowC.r;
+	//p2 = *(int *)colC.r;
+
 	struct MyStruct
 	{
-		int x;
-		int y;
+		uchar* row;
+		uchar* col;
+		uchar* r;
 	} st;
+	st.row = rowC.r;
+	st.col = colC.r;
+	st.r = img0.data;
 
-	st.x = 3;
-	int a = 321;
-	unsigned char r[4];
-	*(int *)r = a;
-
-
-	for (size_t i = 0; i < 5; i++)
-	{
-		std::cout << "r[" << i << "]= " << r[i] << std::endl;
-			 
-	}
 	
-	int b = 0;
-	b = *(int *)r;
-
-	std::cout << "b = " << b << std::endl;
-	
-
-	int x1;
-	int &y1 = x1;
-	int z1 = y1;
+	//testing: start
 	//cv::Mat img1 = cv::Mat(img0.rows, img0.cols, CV_8UC3);
 
 	//for (size_t i = 0; i <= img0.cols * img0.rows * 3; i++)
 	//{
-	//	img1.data[i] = ptrbuf[i + 9];
+	//	img1.data[i] = ptrbuf[i + 27];
 	//}
 	////img1.data = ptrbuf;
-	//cv::namedWindow("image", CV_WINDOW_NORMAL);
+	//cv::namedWindow("image", CV_WINDOW_AUTOSIZE);
 	//cv::imshow("image", img1);
 	//cv::waitKey(0);
-	
-
-
+	//testing: end
 	std::string ipAddress = "127.0.0.1";
 	int port = 54000;
 	//init winsocket
@@ -91,32 +97,39 @@ int main()
 		return -1;
 	}
 
-	//do-while send receive
-	char buf[4096];
-	std::string userinput;
-	do
+	const char* buf = ptrbuf;
+	int sendResult = send(sock, buf, img0.cols * img0.rows * 3 + 26, 0); //bufLen
+	if (sendResult != SOCKET_ERROR)
 	{
-		//detect some user text
-		std::cout << "> ";
-		std::getline(std::cin, userinput);
-		if (userinput.size() > 0)
-		{
-			//try send text
-			int sendResult = send(sock, userinput.c_str(), userinput.size() + 1, 0);
-			if (sendResult != SOCKET_ERROR)
-			{
-				//wait for response
-				ZeroMemory(buf, 4096);
-				int bytesReceived = recv(sock, buf, 4096, 0);
-				if (bytesReceived > 0)
-				{
-					//echo response to console
-					std::cout << "response from server: " << std::string(buf, 0, bytesReceived) << std::endl;
-				}
-			}
-		}
-		
-	} while (userinput.size() > 0);
+		std::cout << "bytes send : " << sendResult << std::endl;
+	}
+
+	//do-while send receive
+	//char buf[4096];
+	//std::string userinput;
+	//do
+	//{
+	//	//detect some user text
+	//	std::cout << "> ";
+	//	std::getline(std::cin, userinput);
+	//	if (userinput.size() > 0)
+	//	{
+	//		//try send text
+	//		int sendResult = send(sock, userinput.c_str(), userinput.size() + 1, 0);
+	//		if (sendResult != SOCKET_ERROR)
+	//		{
+	//			//wait for response
+	//			ZeroMemory(buf, 4096);
+	//			int bytesReceived = recv(sock, buf, 4096, 0);
+	//			if (bytesReceived > 0)
+	//			{
+	//				//echo response to console
+	//				std::cout << "response from server: " << std::string(buf, 0, bytesReceived) << std::endl;
+	//			}
+	//		}
+	//	}
+	//	
+	//} while (userinput.size() > 0);
 	//close and clean
 	closesocket(sock);
 	WSACleanup();
