@@ -9,8 +9,19 @@
 //#include <stdlib.h>
 int main()
 {
-	std::cout << "start" << std::endl;
-	cv::Mat img0 = cv::imread("12.jpg");
+	//std::cout << "start" << std::endl;
+	cv::VideoCapture vid("videoFile.avi");
+	
+	
+	cv::Mat img0;  // = cv::imread("12.jpg");
+
+	cv::namedWindow("video", CV_WINDOW_AUTOSIZE);
+	for(;;)
+	{
+		vid >> img0;
+		cv::imshow("video", img0); 
+		if (cv::waitKey(30) >= 0) break;
+	}
 
 	struct StructImage
 	{
@@ -18,6 +29,8 @@ int main()
 		int cols;
 		size_t total;
 	} strImg;
+
+	ZeroMemory(&strImg, sizeof(strImg));
 	strImg.rows = img0.rows;
 	strImg.cols = img0.cols;
 	strImg.total = img0.total();
@@ -27,17 +40,17 @@ int main()
 	//char z[img0.rows];
 
 	//testing: start
-	cv::Mat img1 = cv::Mat(strImg.rows, strImg.cols, CV_8UC3);
-	//img1.data = (uchar *)img0.data;
-	char* imgBuff = (char*)malloc(strImg.total * 3);
-	ZeroMemory(imgBuff, strImg.total * 3);
-	memcpy(imgBuff, img0.data, strImg.total * 3);
-	//imgBuff = (char*)img0.data;
-	img1.data = (uchar*)imgBuff;
+	//cv::Mat img1 = cv::Mat(strImg.rows, strImg.cols, CV_8UC3);
+	////img1.data = (uchar *)img0.data;
+	//char* imgBuff = (char*)malloc(strImg.total * 3);
+	//ZeroMemory(imgBuff, strImg.total * 3);
+	//memcpy(imgBuff, img0.data, strImg.total * 3);
+	////imgBuff = (char*)img0.data;
+	//img1.data = (uchar*)imgBuff;
 
-	cv::namedWindow("image", CV_WINDOW_AUTOSIZE);
-	cv::imshow("image", img1);
-	cv::waitKey(0);
+	//cv::namedWindow("image", CV_WINDOW_AUTOSIZE);
+	//cv::imshow("image", img1);
+	//cv::waitKey(0);
 	//testing: end
 	std::string ipAddress = "127.0.0.1";
 	int port = 54000;
