@@ -24,4 +24,9 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="videoFile.avi">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

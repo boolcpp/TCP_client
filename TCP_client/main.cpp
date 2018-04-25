@@ -11,15 +11,24 @@ int main()
 {
 	//std::cout << "start" << std::endl;
 	cv::VideoCapture vid("videoFile.avi");
-	
-	
-	cv::Mat img0;  // = cv::imread("12.jpg");
 
-	cv::namedWindow("video", CV_WINDOW_AUTOSIZE);
+	cv::Mat img0;  
+
+	cv::namedWindow("video", CV_WINDOW_NORMAL);
+	cv::resizeWindow("video", 800, 600);
 	for(;;)
 	{
+		ZeroMemory(img0.data, img0.cols*img0.rows * 3);
 		vid >> img0;
-		cv::imshow("video", img0); 
+		if (img0.empty())
+		{
+			break;
+		}
+		else
+		{
+			cv::imshow("video", img0);
+		}
+				
 		if (cv::waitKey(30) >= 0) break;
 	}
 

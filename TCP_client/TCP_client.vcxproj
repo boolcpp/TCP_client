@@ -136,6 +136,9 @@
   <ItemGroup>
     <Image Include="1.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="videoFile.avi" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
