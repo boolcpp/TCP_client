@@ -11,43 +11,33 @@ int main()
 {
 	std::cout << "start" << std::endl;
 	cv::Mat img0 = cv::imread("12.jpg");
-	//mat to char
-	unsigned char* ptrbuf = new unsigned char[img0.cols * img0.rows * 3 + 8];
-	
-	
-	char rowbuf[4];// = new unsigned char[4];
-	ZeroMemory(rowbuf, 4);
-	sprintf_s(rowbuf, "%d", img0.rows);
-	
-	//sizeof(rowbuf);
 
-	char colbuf[4];// = new unsigned char[4];
-	ZeroMemory(colbuf, 4);
-	sprintf_s(colbuf, "%d", img0.cols);
-
-
-	struct MyStruct
+	struct StructImage
 	{
-		ptrbuf[i] = rowbuf[i];
-		ptrbuf[i + 5] = colbuf[i];
-	}
+		int rows;
+		int cols;
+		size_t total;
+	} strImg;
+	strImg.rows = img0.rows;
+	strImg.cols = img0.cols;
+	strImg.total = img0.total();
+	//memcpy(&st.row, &(img0.rows), sizeof img0.rows);
+	//memcpy(&st.col, &(img0.cols), sizeof img0.cols);
 
+	//char z[img0.rows];
 
-	for (size_t i = 9; i <= img0.cols * img0.rows * 3 + 8; i++)
-	{
-		ptrbuf[i] = img0.data[i - 9];
-	}
-		
-	//cv::Mat img1 = cv::Mat(img0.rows, img0.cols, CV_8UC3);
+	//testing: start
+	cv::Mat img1 = cv::Mat(strImg.rows, strImg.cols, CV_8UC3);
+	//img1.data = (uchar *)img0.data;
+	char* imgBuff = (char*)malloc(strImg.total * 3);
+	ZeroMemory(imgBuff, strImg.total * 3);
+	memcpy(imgBuff, img0.data, strImg.total * 3);
+	//imgBuff = (char*)img0.data;
+	img1.data = (uchar*)imgBuff;
 
-	//for (size_t i = 0; i <= img0.cols * img0.rows * 3; i++)
-	//{
-	//	img1.data[i] = ptrbuf[i + 27];
-	//}
-	////img1.data = ptrbuf;
-	//cv::namedWindow("image", CV_WINDOW_AUTOSIZE);
-	//cv::imshow("image", img1);
-	//cv::waitKey(0);
+	cv::namedWindow("image", CV_WINDOW_AUTOSIZE);
+	cv::imshow("image", img1);
+	cv::waitKey(0);
 	//testing: end
 	std::string ipAddress = "127.0.0.1";
 	int port = 54000;
@@ -75,7 +65,7 @@ int main()
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(port);
 	inet_pton(AF_INET, ipAddress.c_str(), &hint.sin_addr);
-	
+
 	//connect to server
 	int connResult = connect(sock, (sockaddr*)&hint, sizeof(hint));
 	if (connResult == SOCKET_ERROR)
@@ -86,11 +76,25 @@ int main()
 		return -1;
 	}
 
-	const char* buf = ptrbuf;
-	int sendResult = send(sock, buf, img0.cols * img0.rows * 3 + 26, 0); //bufLen
-	if (sendResult != SOCKET_ERROR)
+	
+	//int sendResult = send(sock, buf, img0.cols * img0.rows * 3 + 26, 0); //bufLen
+	int sendStruct = send(sock, (char*)&strImg, sizeof strImg, 0); //bufLen
+	//int sendImage  = send(sock, (const char*)img0.data, st.total * 3, 0);
+
+	/*recv(sock, (char*)&st, sizeof st, 0);
+	char *buff = (char*)malloc(st.total * 3);
+	recv(sock, buff, st.total * 3, 0);*/
+
+
+	if (sendStruct != SOCKET_ERROR)
 	{
-		std::cout << "bytes send : " << sendResult << std::endl;
+		std::cout << "Image structure sended with bytes : " << sendStruct << std::endl;
+		int sendImage = send(sock, (const char*)img0.data, strImg.total * 3, 0);
+		if (sendImage != SOCKET_ERROR)
+		{
+			std::cout << "Image data sended with bytes : " << sendStruct << std::endl;
+		}
+
 	}
 
 	//do-while send receive
@@ -103,7 +107,7 @@ int main()
 	//	std::getline(std::cin, userinput);
 	//	if (userinput.size() > 0)
 	//	{
-	//		//try send text
+	//		//try send text 
 	//		int sendResult = send(sock, userinput.c_str(), userinput.size() + 1, 0);
 	//		if (sendResult != SOCKET_ERROR)
 	//		{
