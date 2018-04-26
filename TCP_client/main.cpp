@@ -11,26 +11,38 @@ int main()
 {
 	//std::cout << "start" << std::endl;
 	cv::VideoCapture vid("videoFile.avi");
-
-	cv::Mat img0;  
+	if (!vid.isOpened())
+	{
+		std::cout << "can't open video" << std::endl;
+	}
+	cv::Mat frame;
 
 	cv::namedWindow("video", CV_WINDOW_NORMAL);
 	cv::resizeWindow("video", 800, 600);
-	for(;;)
+	while (vid.read(frame))
 	{
-		ZeroMemory(img0.data, img0.cols*img0.rows * 3);
-		vid >> img0;
-		if (img0.empty())
+		cv::imshow("video", frame);
+		if (cv::waitKey(1000)>= 0)
 		{
 			break;
 		}
-		else
-		{
-			cv::imshow("video", img0);
-		}
-				
-		if (cv::waitKey(30) >= 0) break;
 	}
+	//for(;;)
+	//{
+	//	ZeroMemory(frame.data, frame.cols*frame.rows * 3);
+	//	vid >> frame;
+	//	if (frame.empty())
+	//	{
+	//		break;
+	//	}
+	//	else
+	//	{
+	//		cv::imshow("video", frame);
+	//	}
+	//			
+	//	//if (cv::waitKey(30) >= 0) break;
+	//}
+
 
 	struct StructImage
 	{
@@ -40,9 +52,9 @@ int main()
 	} strImg;
 
 	ZeroMemory(&strImg, sizeof(strImg));
-	strImg.rows = img0.rows;
-	strImg.cols = img0.cols;
-	strImg.total = img0.total();
+	strImg.rows = frame.rows;
+	strImg.cols = frame.cols;
+	strImg.total = frame.total();
 	//memcpy(&st.row, &(img0.rows), sizeof img0.rows);
 	//memcpy(&st.col, &(img0.cols), sizeof img0.cols);
 
@@ -111,7 +123,7 @@ int main()
 	if (sendStruct != SOCKET_ERROR)
 	{
 		std::cout << "Image structure sended with bytes : " << sendStruct << std::endl;
-		int sendImage = send(sock, (const char*)img0.data, strImg.total * 3, 0);
+		int sendImage = send(sock, (const char*)frame.data, strImg.total * 3, 0);
 		if (sendImage != SOCKET_ERROR)
 		{
 			std::cout << "Image data sended with bytes : " << sendStruct << std::endl;
