@@ -7,49 +7,68 @@
 #include <opencv2/opencv.hpp>
 
 //#include <stdlib.h>
+
+struct StructImage
+{
+	int rows;
+	int cols;
+	size_t total;
+};
+
+void mysend(cv::Mat &frame, SOCKET sock) {
+	struct StructImage strImg;
+
+	ZeroMemory(&strImg, sizeof(strImg));
+	strImg.rows = frame.rows;
+	strImg.cols = frame.cols;
+	strImg.total = frame.total();
+	int sendStruct = 0;
+	int sendImage = 0;
+	sendStruct = send(sock, (char*)&strImg, sizeof strImg, 0);
+	if (sendStruct != SOCKET_ERROR)
+	{
+		std::cout << "Image structure sended with bytes : " << sendStruct << std::endl;
+		sendImage = send(sock, (const char*)frame.data, strImg.total * 3, 0);
+		if (sendImage != SOCKET_ERROR)
+		{
+			std::cout << "Image data sended with bytes : " << sendImage << std::endl;
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		return;
+	}
+	
+}
+
 int main()
 {
 	//std::cout << "start" << std::endl;
-	cv::VideoCapture vid("videoFile.avi");
+	cv::VideoCapture vid("videoplayback.mp4");
 	if (!vid.isOpened())
 	{
 		std::cout << "can't open video" << std::endl;
 	}
-	cv::Mat frame;
+	double fps = vid.get(CV_CAP_PROP_FPS);
+	cv::Mat frame;// = cv::imread("1.jpg");
 
-	cv::namedWindow("video", CV_WINDOW_NORMAL);
-	cv::resizeWindow("video", 800, 600);
-	while (vid.read(frame))
-	{
-		cv::imshow("video", frame);
-		if (cv::waitKey(1000)>= 0)
-		{
-			break;
-		}
-	}
-	//for(;;)
+	//cv::namedWindow("video", CV_WINDOW_NORMAL);
+	//cv::resizeWindow("video", 800, 600);
+	//while (vid.read(frame))
 	//{
-	//	ZeroMemory(frame.data, frame.cols*frame.rows * 3);
-	//	vid >> frame;
-	//	if (frame.empty())
+	//	//cv::imshow("video", frame);
+	//	if (cv::waitKey(1000)>= 0)
 	//	{
 	//		break;
 	//	}
-	//	else
-	//	{
-	//		cv::imshow("video", frame);
-	//	}
-	//			
-	//	//if (cv::waitKey(30) >= 0) break;
-	//}
+	//
 
 
-	struct StructImage
-	{
-		int rows;
-		int cols;
-		size_t total;
-	} strImg;
+	struct StructImage strImg;
 
 	ZeroMemory(&strImg, sizeof(strImg));
 	strImg.rows = frame.rows;
@@ -110,9 +129,18 @@ int main()
 		return -1;
 	}
 
+	while (vid.read(frame))
+	{
+		//cv::imshow("video", frame);
+		mysend(frame, sock);
+		if (cv::waitKey(1000/fps) >= 0)
+		{
+			break;
+		}
+	}
 	
 	//int sendResult = send(sock, buf, img0.cols * img0.rows * 3 + 26, 0); //bufLen
-	int sendStruct = send(sock, (char*)&strImg, sizeof strImg, 0); //bufLen
+	//int sendStruct = send(sock, (char*)&strImg, sizeof strImg, 0); //bufLen
 	//int sendImage  = send(sock, (const char*)img0.data, st.total * 3, 0);
 
 	/*recv(sock, (char*)&st, sizeof st, 0);
@@ -120,16 +148,16 @@ int main()
 	recv(sock, buff, st.total * 3, 0);*/
 
 
-	if (sendStruct != SOCKET_ERROR)
-	{
-		std::cout << "Image structure sended with bytes : " << sendStruct << std::endl;
-		int sendImage = send(sock, (const char*)frame.data, strImg.total * 3, 0);
-		if (sendImage != SOCKET_ERROR)
-		{
-			std::cout << "Image data sended with bytes : " << sendStruct << std::endl;
-		}
+	//if (sendStruct != SOCKET_ERROR)
+	//{
+	//	std::cout << "Image structure sended with bytes : " << sendStruct << std::endl;
+	//	int sendImage = send(sock, (const char*)frame.data, strImg.total * 3, 0);
+	//	if (sendImage != SOCKET_ERROR)
+	//	{
+	//		std::cout << "Image data sended with bytes : " << sendStruct << std::endl;
+	//	}
 
-	}
+	//}
 
 	//do-while send receive
 	//char buf[4096];
@@ -160,5 +188,6 @@ int main()
 	//close and clean
 	closesocket(sock);
 	WSACleanup();
+	system("pause");
 	return 0;
 }
