@@ -5,30 +5,76 @@
 #include <string>
 //for video
 #include <opencv2/opencv.hpp>
-
+//for JPG
+#include <vector>
 //#include <stdlib.h>
 
-struct StructImage
-{
-	int rows;
-	int cols;
-	size_t total;
-};
+//struct StructImage
+//{
+//	int rows;
+//	int cols;
+//	size_t total;
+//};
+
+
+//void mysend(cv::Mat &frame, SOCKET sock) {
+//	struct StructImage strImg;
+//
+//	ZeroMemory(&strImg, sizeof(strImg));
+//	strImg.rows = frame.rows;
+//	strImg.cols = frame.cols;
+//	strImg.total = frame.total();
+//	int sendStruct = 0;
+//	int sendImage = 0;
+//	sendStruct = send(sock, (char*)&strImg, sizeof strImg, 0);
+//	if (sendStruct != SOCKET_ERROR)
+//	{
+//		std::cout << "Image structure sended with bytes : " << sendStruct << std::endl;
+//		sendImage = send(sock, (const char*)frame.data, strImg.total * 3, 0);
+//		if (sendImage != SOCKET_ERROR)
+//		{
+//			std::cout << "Image data sended with bytes : " << sendImage << std::endl;
+//		}
+//		else
+//		{
+//			return;
+//		}
+//	}
+//	else
+//	{
+//		return;
+//	}
+//	
+//}
+
+
+
+//struct StructImageJPG
+//{
+//	/*int rows;
+//	int cols;*/
+//	size_t total;
+//};
+
 
 void mysend(cv::Mat &frame, SOCKET sock) {
-	struct StructImage strImg;
-
-	ZeroMemory(&strImg, sizeof(strImg));
-	strImg.rows = frame.rows;
-	strImg.cols = frame.cols;
-	strImg.total = frame.total();
+	//struct StructImageJPG strImg;
+	std::vector<uchar> Imgbuf;
+	cv::imencode(".jpg", frame, Imgbuf);
+	//ZeroMemory(&strImg, sizeof(strImg));
+	//strImg.rows = frame.rows;
+	//strImg.cols = frame.cols;
+	//strImg.total = Imgbuf.size();//frame.total();
+	size_t length = Imgbuf.size();
 	int sendStruct = 0;
 	int sendImage = 0;
-	sendStruct = send(sock, (char*)&strImg, sizeof strImg, 0);
+	//sendStruct = send(sock, (char*)&strImg, sizeof strImg, 0);
+	sendStruct = send(sock, (char*)&length, sizeof(length), 0);
 	if (sendStruct != SOCKET_ERROR)
 	{
 		std::cout << "Image structure sended with bytes : " << sendStruct << std::endl;
-		sendImage = send(sock, (const char*)frame.data, strImg.total * 3, 0);
+		//sendImage = send(sock, (const char*)frame.data, strImg.total * 3, 0);
+		sendImage = send(sock, (char*)&Imgbuf, Imgbuf.size(), 0);
 		if (sendImage != SOCKET_ERROR)
 		{
 			std::cout << "Image data sended with bytes : " << sendImage << std::endl;
@@ -42,7 +88,7 @@ void mysend(cv::Mat &frame, SOCKET sock) {
 	{
 		return;
 	}
-	
+
 }
 
 int main()
